@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability (critical)
+    url: mailto:faken.dev@gmail.com
+    about: For critical vulnerabilities — authentication bypass, token forgery, credential exposure
+  - name: Documentation
+    url: https://github.com/faken-dev/AuthenticateSystem/tree/main/docs
+    about: Read the docs before opening an issue
