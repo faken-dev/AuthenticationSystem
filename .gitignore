@@ -1,0 +1,129 @@
+# -------- BUILD OUTPUT --------
+target/
+build/
+out/
+bin/
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+*.zip
+*.tar.gz
+
+# -------- MAVEN --------
+.mvn/wrapper/maven-wrapper.jar
+!.mvn/wrapper/maven-wrapper.properties
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+
+# -------- GRADLE --------
+.gradle/
+gradle-app.setting
+!gradle-wrapper.jar
+!gradle-wrapper.properties
+.gradletasknamecache
+
+# -------- SPRING BOOT --------
+application-local.properties
+application-local.yml
+application-dev.properties
+application-dev.yml
+application-prod.properties
+application-prod.yml
+application-secret.properties
+application-secret.yml
+*.env
+.env
+.env.*
+!.env.example
+
+# -------- IDE: IntelliJ IDEA --------
+.idea/
+*.iml
+*.iws
+*.ipr
+.idea_modules/
+atlassian-ide-plugin.xml
+
+# -------- IDE: Eclipse --------
+.classpath
+.project
+.settings/
+.factorypath
+bin/
+tmp/
+
+# -------- IDE: VS Code --------
+.vscode/
+!.vscode/extensions.json
+
+# -------- IDE: NetBeans --------
+nbproject/private/
+nbbuild/
+nbdist/
+nbactions.xml
+nb-configuration.xml
+
+# -------- LOGS --------
+logs/
+*.log
+*.log.*
+log/
+spring.log
+spring-*.log
+
+# -------- DATABASE / CREDENTIALS --------
+*.sql
+*.sqlite
+*.db
+*.h2.mv.db
+*.h2.trace.db
+secrets/
+credentials/
+keystore.jks
+truststore.jks
+*.p12
+*.pfx
+*.pem
+*.key
+*.crt
+*.cer
+
+# -------- DOCKER --------
+docker-compose.override.yml
+docker-compose.local.yml
+.dockerignore
+
+# -------- TESTING --------
+surefire-reports/
+failsafe-reports/
+jacoco.exec
+coverage/
+*.exec
+
+# -------- CACHE --------
+.cache/
+.sonar/
+.apt_generated/
+.apt_generated_tests/
+
+# -------- OS FILES --------
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# -------- MISC --------
+*.orig
+*.rej
+*.bak
+*.tmp
+*.swp
+*~
+HELP.md

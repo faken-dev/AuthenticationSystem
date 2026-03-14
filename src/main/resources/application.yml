@@ -1,0 +1,191 @@
+spring:
+  application:
+    name: AuthenticateSystem
+
+  # DataSource
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5433}/${DB_NAME:auth_db}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:your-password}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      pool-name: AuthenticateSystem-HikariPool
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      keepalive-time: 60000
+      leak-detection-threshold: 60000
+
+  # Flyway
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
+    locations: classpath:db/migration
+    validate-on-migrate: true
+    clean-disabled: true
+    out-of-order: false
+
+  #  JPA
+  jpa:
+    defer-datasource-initialization: false
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        default_batch_fetch_size: 20
+        jdbc:
+          batch_size: 30
+          order_inserts: true
+          order_updates: true
+        generate_statistics: true
+
+  # Redis
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6382}
+      password: ${REDIS_PASSWORD:}
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 20
+          min-idle: 5
+          max-idle: 10
+          max-wait: 1000ms
+        shutdown-timeout: 200ms
+
+  # Security / OAuth2
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope:
+              - email
+              - profile
+            redirect-uri: "{baseUrl}/oauth2/callback/{registrationId}"
+          facebook:
+            client-id: ${FACEBOOK_APP_ID}
+            client-secret: ${FACEBOOK_APP_SECRET}
+            scope:
+              - email
+              - public_profile
+            redirect-uri: "{baseUrl}/oauth2/callback/{registrationId}"
+
+# App custom config
+app:
+
+  # JWT
+  jwt:
+    secret: ${JWT_SECRET}
+    access-token-expiry: 900
+    refresh-token-expiry: 2592000
+    issuer: AuthenticateSystem.com
+
+  # SendGrid
+  sendgrid:
+    api-key: ${SENDGRID_API_KEY}
+    from-email: noreply@authenticatesystem.com
+    from-name: AuthenticateSystem
+    otp-template-id: ${SENDGRID_OTP_TEMPLATE_ID:}
+
+  # Twilio
+  twilio:
+    account-sid: ${TWILIO_ACCOUNT_SID}
+    auth-token: ${TWILIO_AUTH_TOKEN}
+    whatsapp-from: ${TWILIO_WHATSAPP_FROM}
+
+  # OTP settings
+  otp:
+    length: 6
+    expiry-seconds: 300
+    max-attempts: 5
+    resend-cooldown-seconds: 60
+
+  # Rate limiting (Bucket4j + Redis)
+  rate-limit:
+    otp-verify:
+      capacity: 5
+      refill-seconds: 300
+    otp-send:
+      capacity: 3
+      refill-seconds: 3600
+    login:
+      capacity: 10
+      refill-seconds: 60
+
+  # OAuth2 redirect
+  oauth2:
+    authorized-redirect-uris:
+      - http://localhost:3000/oauth2/redirect
+      - https://javamart.com/oauth2/redirect
+    default-redirect-uri: http://localhost:3000/oauth2/redirect
+
+  # TOTP (Google Authenticator / ZXing QR)
+  totp:
+    issuer: AuthenticateSystem
+    qr-width: 300
+    qr-height: 300
+    secret-size: 32
+
+# ===== Server =====
+server:
+  port: ${SERVER_PORT:8080}
+  servlet:
+    context-path: /
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html
+    min-response-size: 1024
+
+# ===== Actuator + Observability =====
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, prometheus, httptrace
+  endpoint:
+    health:
+      show-details: when-authorized
+      show-components: always
+  health:
+    redis:
+      enabled: true
+    db:
+      enabled: true
+    diskspace:
+      enabled: true
+
+  # OpenTelemetry tracing
+  tracing:
+    sampling:
+      probability: ${TRACING_SAMPLE_RATE:1.0}
+  otlp:
+    tracing:
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318/v1/traces}
+    metrics:
+      export:
+        url: ${OTEL_METRICS_ENDPOINT:http://localhost:4318/v1/metrics}
+
+  # Prometheus metrics endpoint
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
+# ===== SpringDoc / Swagger =====
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: ${SWAGGER_ENABLED:true}
+  show-actuator: false
