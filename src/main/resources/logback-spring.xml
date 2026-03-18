@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="30 seconds">
+
+    <!-- ========================================================= -->
+    <!-- Global configuration for application logging              -->
+    <!-- Defines log directories, retention policy and size caps  -->
+    <!-- ========================================================= -->
+
+    <property name="APP_PACKAGE" value="com.AuthenticateSystem"/>
+
+    <property name="LOG_DIR"     value="logs"/>
+    <property name="ARCHIVE_DIR" value="logs/archive"/>
+
+    <property name="MAX_HISTORY" value="30"/>
+    <property name="MAX_SIZE"    value="10MB"/>
+    <property name="TOTAL_CAP"   value="200MB"/>
+    <property name="WARN_CAP"    value="50MB"/>
+    <property name="ERROR_CAP"   value="50MB"/>
+
+
+    <!-- ========================================================= -->
+    <!-- Log output patterns                                       -->
+    <!-- Console → compact & colored for readability               -->
+    <!-- File    → detailed for debugging and production tracing   -->
+    <!-- ========================================================= -->
+
+    <property name="CON_PATTERN"
+              value="%d{HH:mm:ss.SSS} %highlight(%-5level) %boldCyan(%-40logger{40}) %gray(│) %msg%n"/>
+
+    <property name="CON_ERR_PATTERN"
+              value="%d{HH:mm:ss.SSS} %highlight(%-5level) %boldCyan(%-40logger{40}) %gray(│) %msg%n%ex{full}"/>
+
+    <property name="FILE_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%-15thread] %-50logger{50} │ %msg%n%ex{full}"/>
+
+
+    <!-- ========================================================= -->
+    <!-- Console logging                                           -->
+    <!-- INFO/WARN → standard console                              -->
+    <!-- ERROR     → dedicated console with full stack trace       -->
+    <!-- ========================================================= -->
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>DENY</onMatch>
+            <onMismatch>ACCEPT</onMismatch>
+        </filter>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${CON_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <appender name="CONSOLE_ERROR" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${CON_ERR_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+
+    <!-- ========================================================= -->
+    <!-- Main application log file                                 -->
+    <!-- Rotates daily and when size threshold is reached          -->
+    <!-- ========================================================= -->
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/app.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${ARCHIVE_DIR}/%d{yyyy-MM-dd}/app.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>${MAX_SIZE}</maxFileSize>
+            <maxHistory>${MAX_HISTORY}</maxHistory>
+            <totalSizeCap>${TOTAL_CAP}</totalSizeCap>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${FILE_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+
+    <!-- ========================================================= -->
+    <!-- Dedicated warning and error log files                     -->
+    <!-- Useful for monitoring and alerting systems                -->
+    <!-- ========================================================= -->
+
+    <appender name="FILE_WARN" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/warn.log</file>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>WARN</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${ARCHIVE_DIR}/%d{yyyy-MM-dd}/warn.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>${MAX_SIZE}</maxFileSize>
+            <maxHistory>${MAX_HISTORY}</maxHistory>
+            <totalSizeCap>${WARN_CAP}</totalSizeCap>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${FILE_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <appender name="FILE_ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/error.log</file>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${ARCHIVE_DIR}/%d{yyyy-MM-dd}/error.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>${MAX_SIZE}</maxFileSize>
+            <maxHistory>${MAX_HISTORY}</maxHistory>
+            <totalSizeCap>${ERROR_CAP}</totalSizeCap>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${FILE_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+
+    <!-- ========================================================= -->
+    <!-- Async appenders improve performance by avoiding blocking  -->
+    <!-- application threads during file I/O                       -->
+    <!-- ========================================================= -->
+
+    <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="FILE"/>
+        <queueSize>512</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <includeCallerData>false</includeCallerData>
+    </appender>
+
+    <appender name="ASYNC_WARN" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="FILE_WARN"/>
+        <queueSize>256</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+    </appender>
+
+    <appender name="ASYNC_ERROR" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="FILE_ERROR"/>
+        <queueSize>256</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+    </appender>
+
+
+    <!-- ========================================================= -->
+    <!-- Framework logging configuration                           -->
+    <!-- Controls verbosity of Spring, Hibernate, and infrastructure -->
+    <!-- ========================================================= -->
+
+    <logger name="org.springframework.boot" level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="CONSOLE_ERROR"/>
+        <appender-ref ref="ASYNC_FILE"/>
+        <appender-ref ref="ASYNC_WARN"/>
+        <appender-ref ref="ASYNC_ERROR"/>
+    </logger>
+
+
+    <!-- ========================================================= -->
+    <!-- Hibernate / JPA logging                                   -->
+    <!-- SQL statements are written to file to avoid console spam  -->
+    <!-- ========================================================= -->
+
+    <logger name="org.hibernate" level="WARN" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="CONSOLE_ERROR"/>
+        <appender-ref ref="ASYNC_FILE"/>
+        <appender-ref ref="ASYNC_WARN"/>
+        <appender-ref ref="ASYNC_ERROR"/>
+    </logger>
+
+    <logger name="org.hibernate.SQL" level="DEBUG" additivity="false">
+        <appender-ref ref="ASYNC_FILE"/>
+    </logger>
+
+
+    <!-- ========================================================= -->
+    <!-- Application package logging                               -->
+    <!-- DEBUG enabled to support development and troubleshooting  -->
+    <!-- ========================================================= -->
+
+    <logger name="${APP_PACKAGE}" level="DEBUG" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="CONSOLE_ERROR"/>
+        <appender-ref ref="ASYNC_FILE"/>
+        <appender-ref ref="ASYNC_WARN"/>
+        <appender-ref ref="ASYNC_ERROR"/>
+    </logger>
+
+
+    <!-- ========================================================= -->
+    <!-- Root logger fallback                                      -->
+    <!-- Captures logs from libraries not explicitly configured    -->
+    <!-- ========================================================= -->
+
+    <root level="INFO">
+        <appender-ref ref="ASYNC_FILE"/>
+        <appender-ref ref="ASYNC_WARN"/>
+        <appender-ref ref="ASYNC_ERROR"/>
+    </root>
+
+</configuration>
